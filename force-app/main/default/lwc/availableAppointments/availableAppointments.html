@@ -151,8 +151,38 @@
                             map-markers={mapMarkers}
                             center={mapCenter}
                             zoom-level="11"
-                            list-view="hidden">
+                            list-view="hidden"
+                            onmarkerselect={handleMarkerSelect}>
                         </lightning-map>
+                    </div>
+                </template>
+                <template lwc:if={selectedMapAppt}>
+                    <div class="appt-card slds-box slds-m-top_x-small">
+                        <div class="slds-grid slds-grid_align-spread appt-header">
+                            <span class="slds-text-heading_small gantt-label">
+                                {selectedMapAppt.ganttLabel}
+                            </span>
+                            <span class="slds-badge travel-badge">
+                                {selectedMapAppt.travelLabel}
+                            </span>
+                        </div>
+                        <div class="appt-details slds-m-top_xx-small">
+                            <p class="slds-text-body_small">{selectedMapAppt.addressLine}</p>
+                            <p class="slds-text-body_small">
+                                Duration: {selectedMapAppt.duration} min
+                            </p>
+                            <p class="slds-text-body_small">
+                                Window: {selectedMapAppt.formattedWindow}
+                            </p>
+                        </div>
+                        <div class="slds-m-top_x-small">
+                            <lightning-button
+                                label="Assign to Me"
+                                variant="brand"
+                                onclick={handleMapSelfAssign}
+                                stretch>
+                            </lightning-button>
+                        </div>
                     </div>
                 </template>
             </template>

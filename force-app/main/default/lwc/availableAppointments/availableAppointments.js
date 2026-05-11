@@ -27,6 +27,7 @@ export default class AvailableAppointments extends LightningElement {
     gpsAcquired = false;
     mapCenter;
     lastApptLocation;
+    selectedMapAppt;
 
     backOnSiteOptions = BACK_ON_SITE_OPTIONS;
 
@@ -196,7 +197,15 @@ export default class AvailableAppointments extends LightningElement {
             markers.push({
                 location: { Latitude: this.currentLat, Longitude: this.currentLng },
                 title: 'My Location',
-                description: 'Your current location'
+                description: 'Your current location',
+                mapIcon: {
+                    path: 'M 125,5 155,90 245,90 175,145 200,230 125,180 50,230 75,145 5,90 95,90 z',
+                    fillColor: '#0176d3',
+                    fillOpacity: 1,
+                    strokeColor: '#014486',
+                    strokeWeight: 1,
+                    scale: 0.12
+                }
             });
         }
         this.appointments
@@ -266,12 +275,27 @@ export default class AvailableAppointments extends LightningElement {
         }
     }
 
+    handleMarkerSelect(event) {
+        const selectedValue = event.detail.selectedMarkerValue;
+        this.selectedMapAppt = this.appointments.find(a => a.id === selectedValue) || null;
+    }
+
     handleRefresh() {
         this.requestGps();
     }
 
+    handleMapSelfAssign() {
+        if (this.selectedMapAppt) {
+            this.assignAppointment(this.selectedMapAppt.id);
+        }
+    }
+
     async handleSelfAssign(event) {
         const saId = event.currentTarget.dataset.id;
+        this.assignAppointment(saId);
+    }
+
+    async assignAppointment(saId) {
         const appt = this.appointments.find(a => a.id === saId);
         try {
             const result = await selfAssignAppointment({
@@ -285,6 +309,9 @@ export default class AvailableAppointments extends LightningElement {
                     variant: 'success'
                 }));
                 this.appointments = this.appointments.filter(a => a.id !== saId);
+                if (this.selectedMapAppt?.id === saId) {
+                    this.selectedMapAppt = null;
+                }
                 this.buildMapMarkers();
             }
         } catch (error) {

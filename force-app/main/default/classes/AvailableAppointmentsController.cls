@@ -305,7 +305,8 @@ public with sharing class AvailableAppointmentsController {
                 last.lat.doubleValue(), last.lng.doubleValue(), saLat, saLng)
             : 0;
         Datetime canStart = last.schedEndTime.addMinutes(travelToSA);
-        if (canStart < sa.DueDate) return true;
+        Datetime canFinish = canStart.addMinutes((Integer) durMin);
+        if (canFinish <= sa.DueDate) return true;
 
         return false;
     }
@@ -313,7 +314,7 @@ public with sharing class AvailableAppointmentsController {
     private static Datetime parseBackOnSiteTime(String backOnSiteTime) {
         if (String.isBlank(backOnSiteTime)) return null;
         try {
-            return Datetime.valueOf(backOnSiteTime.replace('T', ' '));
+            return Datetime.valueOfGmt(backOnSiteTime.replace('T', ' '));
         } catch (Exception e) {
             return null;
         }
