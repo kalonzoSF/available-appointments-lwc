@@ -1,0 +1,19 @@
+# Salesforce
+.sfdx/
+.sf/
+.localdevserver/
+
+# LWC
+__tests__/
+**/lwc/**/*.js-meta.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/

@@ -1,0 +1,161 @@
+<template>
+    <lightning-card title="Available Appointments" icon-name="standard:service_appointment">
+
+        <div slot="actions" class="header-actions">
+            <lightning-button-icon
+                icon-name="utility:refresh"
+                alternative-text="Refresh"
+                onclick={handleRefresh}
+                class="slds-m-right_x-small">
+            </lightning-button-icon>
+            <lightning-button
+                label="List"
+                variant={listButtonVariant}
+                data-view="list"
+                onclick={handleViewToggle}
+                class="slds-m-right_xx-small">
+            </lightning-button>
+            <lightning-button
+                label="Map"
+                variant={mapButtonVariant}
+                data-view="map"
+                onclick={handleViewToggle}>
+            </lightning-button>
+        </div>
+
+        <div class="slds-p-around_small">
+
+            <!-- Filters -->
+            <div class="filters slds-grid slds-wrap slds-gutters_x-small">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-slider
+                        label="Radius (miles)"
+                        min="5"
+                        max="50"
+                        value={radiusMiles}
+                        onchange={handleRadiusChange}
+                        onmouseup={handleRadiusCommit}
+                        ontouchend={handleRadiusCommit}>
+                    </lightning-slider>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-slider
+                        label="Time Buffer (min)"
+                        min="0"
+                        max="60"
+                        step="5"
+                        value={timeBufferMinutes}
+                        onchange={handleBufferChange}
+                        onmouseup={handleBufferCommit}
+                        ontouchend={handleBufferCommit}>
+                    </lightning-slider>
+                </div>
+
+                <template lwc:if={isCrewMember}>
+                    <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
+                        <lightning-combobox
+                            label="Back on Site Buffer"
+                            options={backOnSiteOptions}
+                            value={backOnSiteBuffer}
+                            onchange={handleBackOnSiteChange}>
+                        </lightning-combobox>
+                        <p class="slds-text-body_small slds-m-top_xx-small next-appt-text">
+                            Next appointment: {nextScheduledTime}
+                        </p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Map center toggle (map view only) -->
+            <template lwc:if={showMap}>
+                <div class="slds-m-top_x-small slds-m-bottom_x-small">
+                    <lightning-button-group>
+                        <lightning-button
+                            label="My Location"
+                            onclick={handleCenterGps}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Last Appt"
+                            onclick={handleCenterLastAppt}>
+                        </lightning-button>
+                    </lightning-button-group>
+                </div>
+            </template>
+
+            <!-- Status / Loading -->
+            <template lwc:if={showStatus}>
+                <div class="slds-align_absolute-center slds-m-vertical_large">
+                    <template lwc:if={isLoading}>
+                        <lightning-spinner alternative-text="Loading" size="medium">
+                        </lightning-spinner>
+                    </template>
+                    <template lwc:elseif={statusMessage}>
+                        <p class="slds-text-body_regular slds-text-color_weak">
+                            {statusMessage}
+                        </p>
+                    </template>
+                </div>
+            </template>
+
+            <!-- List View -->
+            <template lwc:if={showList}>
+                <template lwc:if={hasAppointments}>
+                    <p class="slds-text-body_small slds-m-bottom_x-small result-count">
+                        {appointmentCount} available
+                    </p>
+                    <div class="appointment-list">
+                        <template for:each={appointments} for:item="appt">
+                            <div key={appt.id} class="appt-card slds-box slds-m-bottom_x-small">
+                                <div class="slds-grid slds-grid_align-spread appt-header">
+                                    <span class="slds-text-heading_small gantt-label">
+                                        {appt.ganttLabel}
+                                    </span>
+                                    <span class="slds-badge travel-badge">
+                                        {appt.travelLabel}
+                                    </span>
+                                </div>
+                                <div class="appt-details slds-m-top_xx-small">
+                                    <p class="slds-text-body_small">{appt.addressLine}</p>
+                                    <p class="slds-text-body_small">
+                                        Duration: {appt.duration} min
+                                    </p>
+                                    <p class="slds-text-body_small">
+                                        Window: {appt.formattedWindow}
+                                    </p>
+                                </div>
+                                <div class="slds-m-top_x-small">
+                                    <lightning-button
+                                        label="Assign to Me"
+                                        variant="brand"
+                                        data-id={appt.id}
+                                        onclick={handleSelfAssign}
+                                        stretch>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Map View -->
+            <template lwc:if={showMap}>
+                <template lwc:if={showNoAppointmentsMapNote}>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small">
+                        No available appointments match your filters.
+                    </p>
+                </template>
+                <template lwc:if={hasMapMarkers}>
+                    <div class="map-container">
+                        <lightning-map
+                            map-markers={mapMarkers}
+                            center={mapCenter}
+                            zoom-level="11"
+                            list-view="hidden">
+                        </lightning-map>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>
