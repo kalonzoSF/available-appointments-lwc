@@ -28,6 +28,7 @@ export default class AvailableAppointments extends LightningElement {
     mapCenter;
     lastApptLocation;
     selectedMapAppt;
+    _refreshInterval;
 
     backOnSiteOptions = BACK_ON_SITE_OPTIONS;
 
@@ -96,6 +97,15 @@ export default class AvailableAppointments extends LightningElement {
     connectedCallback() {
         this.loadContext();
         this.requestGps();
+        this._refreshInterval = setInterval(() => {
+            this.loadAppointments();
+        }, 120000);
+    }
+
+    disconnectedCallback() {
+        if (this._refreshInterval) {
+            clearInterval(this._refreshInterval);
+        }
     }
 
     async loadContext() {
