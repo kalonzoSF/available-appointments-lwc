@@ -13,6 +13,7 @@ export default class AvailableAppointments extends LightningElement {
     radiusMiles = 25;
     timeBufferMinutes = 0;
     viewMode = 'list';
+    checkInventory = false;
     backOnSiteDeadline = null;
     isLoading = true;
     errorMessage;
@@ -60,6 +61,10 @@ export default class AvailableAppointments extends LightningElement {
 
     get mapButtonVariant() {
         return this.viewMode === 'map' ? 'brand' : 'neutral';
+    }
+
+    get inventoryButtonVariant() {
+        return this.checkInventory ? 'brand' : 'neutral';
     }
 
     get statusMessage() {
@@ -162,7 +167,9 @@ export default class AvailableAppointments extends LightningElement {
                 lng: this.currentLng,
                 radiusMiles: this.radiusMiles,
                 timeBufferMinutes: this.timeBufferMinutes,
-                backOnSiteTime: backOnSiteTime
+                backOnSiteTime: backOnSiteTime,
+                checkInventory: this.checkInventory,
+                locationId: this.resourceContext.locationId
             });
             this.appointments = results.map(a => ({
                 ...a,
@@ -219,6 +226,11 @@ export default class AvailableAppointments extends LightningElement {
 
     handleViewToggle(event) {
         this.viewMode = event.target.dataset.view;
+    }
+
+    handleInventoryToggle() {
+        this.checkInventory = !this.checkInventory;
+        this.loadAppointments();
     }
 
     handleRadiusChange(event) {

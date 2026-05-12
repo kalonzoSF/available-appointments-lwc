@@ -6,6 +6,7 @@ public with sharing class AvailableAppointmentsController {
 
     public class ResourceContext {
         @AuraEnabled public String resourceId;
+        @AuraEnabled public String locationId;
         @AuraEnabled public Boolean isCrewMember;
         @AuraEnabled public List<String> territoryIds;
         @AuraEnabled public List<String> skillIds;
@@ -49,7 +50,7 @@ public with sharing class AvailableAppointmentsController {
         ResourceContext ctx = new ResourceContext();
 
         List<ServiceResource> resources = [
-            SELECT Id FROM ServiceResource
+            SELECT Id, LocationId FROM ServiceResource
             WHERE RelatedRecordId = :UserInfo.getUserId() AND IsActive = true
             LIMIT 1
         ];
@@ -57,6 +58,7 @@ public with sharing class AvailableAppointmentsController {
             throw new AuraHandledException('No active Service Resource found for current user.');
         }
         ctx.resourceId = resources[0].Id;
+        ctx.locationId = resources[0].LocationId;
 
         ctx.territoryIds = new List<String>();
         for (ServiceTerritoryMember stm : [
@@ -89,7 +91,8 @@ public with sharing class AvailableAppointmentsController {
     public static List<AvailableAppt> getAvailableAppointments(
         String resourceId, List<String> territoryIds, List<String> skillIds,
         Decimal lat, Decimal lng, Decimal radiusMiles,
-        Integer timeBufferMinutes, String backOnSiteTime
+        Integer timeBufferMinutes, String backOnSiteTime,
+        Boolean checkInventory, String locationId
     ) {
         List<ServiceAppointment> candidates = [
             SELECT Id, AppointmentNumber, Subject, Duration, DurationType,
@@ -136,6 +139,34 @@ public with sharing class AvailableAppointmentsController {
             resourceSkillSet.add((Id) sid);
         }
 
+        Map<Id, Double> inventoryMap = new Map<Id, Double>();
+        Map<Id, Map<Id, Double>> prodReqsByParent = new Map<Id, Map<Id, Double>>();
+        if (checkInventory == true && String.isNotBlank(locationId)) {
+            for (ProductItem pi : [
+                SELECT Product2Id, QuantityOnHand FROM ProductItem
+                WHERE LocationId = :locationId AND QuantityOnHand > 0
+            ]) {
+                inventoryMap.put(pi.Product2Id, pi.QuantityOnHand);
+            }
+            Set<Id> allReqParents = new Set<Id>();
+            allReqParents.addAll(parentIds);
+            allReqParents.addAll(workTypeIds);
+            if (!allReqParents.isEmpty()) {
+                for (ProductRequired pr : [
+                    SELECT ParentRecordId, Product2Id, QuantityRequired
+                    FROM ProductRequired
+                    WHERE ParentRecordId IN :allReqParents
+                ]) {
+                    if (!prodReqsByParent.containsKey(pr.ParentRecordId)) {
+                        prodReqsByParent.put(pr.ParentRecordId, new Map<Id, Double>());
+                    }
+                    Map<Id, Double> reqs = prodReqsByParent.get(pr.ParentRecordId);
+                    Double existing = reqs.containsKey(pr.Product2Id) ? reqs.get(pr.Product2Id) : 0;
+                    reqs.put(pr.Product2Id, existing + pr.QuantityRequired);
+                }
+            }
+        }
+
         List<ScheduledAppt> schedule = getSchedule(resourceId);
 
         Datetime backOnSiteDt = parseBackOnSiteTime(backOnSiteTime);
@@ -150,6 +181,34 @@ public with sharing class AvailableAppointmentsController {
             if (workTypeId != null) {
                 Set<Id> required = skillReqsByWorkType.get(workTypeId);
                 if (required != null && !resourceSkillSet.containsAll(required)) continue;
+            }
+
+            if (checkInventory == true && String.isNotBlank(locationId)) {
+                Map<Id, Double> combined = new Map<Id, Double>();
+                Map<Id, Double> woReqs = prodReqsByParent.get(sa.ParentRecordId);
+                if (woReqs != null) {
+                    for (Id pid : woReqs.keySet()) {
+                        combined.put(pid, woReqs.get(pid));
+                    }
+                }
+                if (workTypeId != null) {
+                    Map<Id, Double> wtReqs = prodReqsByParent.get(workTypeId);
+                    if (wtReqs != null) {
+                        for (Id pid : wtReqs.keySet()) {
+                            Double existing = combined.containsKey(pid) ? combined.get(pid) : 0;
+                            combined.put(pid, existing + wtReqs.get(pid));
+                        }
+                    }
+                }
+                Boolean hasInventory = true;
+                for (Id pid : combined.keySet()) {
+                    Double onHand = inventoryMap.containsKey(pid) ? inventoryMap.get(pid) : 0;
+                    if (onHand < combined.get(pid)) {
+                        hasInventory = false;
+                        break;
+                    }
+                }
+                if (!hasInventory) continue;
             }
 
             Double saLat = sa.Latitude;
