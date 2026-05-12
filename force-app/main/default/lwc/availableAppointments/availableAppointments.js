@@ -238,7 +238,8 @@ export default class AvailableAppointments extends LightningElement {
     }
 
     handleBackOnSiteChange(event) {
-        this.backOnSiteDeadline = event.detail.value || null;
+        const val = event.detail.value;
+        this.backOnSiteDeadline = (val && new Date(val) > Date.now()) ? val : null;
         this.loadAppointments();
     }
 
