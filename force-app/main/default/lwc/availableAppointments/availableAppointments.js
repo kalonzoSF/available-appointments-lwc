@@ -4,14 +4,6 @@ import getResourceContext from '@salesforce/apex/AvailableAppointmentsController
 import getAvailableAppointments from '@salesforce/apex/AvailableAppointmentsController.getAvailableAppointments';
 import selfAssignAppointment from '@salesforce/apex/AvailableAppointmentsController.selfAssignAppointment';
 
-const BACK_ON_SITE_OPTIONS = [
-    { label: 'No constraint', value: '0' },
-    { label: '15 min before', value: '15' },
-    { label: '30 min before', value: '30' },
-    { label: '45 min before', value: '45' },
-    { label: '60 min before', value: '60' }
-];
-
 export default class AvailableAppointments extends LightningElement {
     @track appointments = [];
     @track mapMarkers = [];
@@ -21,7 +13,7 @@ export default class AvailableAppointments extends LightningElement {
     radiusMiles = 25;
     timeBufferMinutes = 0;
     viewMode = 'list';
-    backOnSiteBuffer = '0';
+    backOnSiteDeadline = null;
     isLoading = true;
     errorMessage;
     gpsAcquired = false;
@@ -29,8 +21,6 @@ export default class AvailableAppointments extends LightningElement {
     lastApptLocation;
     selectedMapAppt;
     _refreshInterval;
-
-    backOnSiteOptions = BACK_ON_SITE_OPTIONS;
 
     get showList() {
         return this.viewMode === 'list';
@@ -161,8 +151,8 @@ export default class AvailableAppointments extends LightningElement {
         this.errorMessage = null;
         try {
             let backOnSiteTime = null;
-            if (this.isCrewMember && parseInt(this.backOnSiteBuffer, 10) > 0) {
-                backOnSiteTime = this.computeBackOnSiteTime();
+            if (this.isCrewMember && this.backOnSiteDeadline) {
+                backOnSiteTime = this.backOnSiteDeadline;
             }
             const results = await getAvailableAppointments({
                 resourceId: this.resourceContext.resourceId,
@@ -188,17 +178,6 @@ export default class AvailableAppointments extends LightningElement {
         } finally {
             this.isLoading = false;
         }
-    }
-
-    computeBackOnSiteTime() {
-        const scheds = this.resourceContext.scheduledAppointments;
-        if (!scheds || scheds.length === 0) return null;
-        const now = Date.now();
-        const next = scheds.find(s => new Date(s.schedStartTime).getTime() > now);
-        if (!next) return null;
-        const bufferMs = parseInt(this.backOnSiteBuffer, 10) * 60000;
-        const backTime = new Date(new Date(next.schedStartTime).getTime() - bufferMs);
-        return backTime.toISOString().replace('Z', '').split('.')[0];
     }
 
     buildMapMarkers() {
@@ -259,7 +238,7 @@ export default class AvailableAppointments extends LightningElement {
     }
 
     handleBackOnSiteChange(event) {
-        this.backOnSiteBuffer = event.detail.value;
+        this.backOnSiteDeadline = event.detail.value || null;
         this.loadAppointments();
     }
 

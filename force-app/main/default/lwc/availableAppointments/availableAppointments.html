@@ -53,12 +53,12 @@
 
                 <template lwc:if={isCrewMember}>
                     <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
-                        <lightning-combobox
-                            label="Back on Site Buffer"
-                            options={backOnSiteOptions}
-                            value={backOnSiteBuffer}
+                        <lightning-input
+                            type="datetime"
+                            label="Needed back on site by"
+                            value={backOnSiteDeadline}
                             onchange={handleBackOnSiteChange}>
-                        </lightning-combobox>
+                        </lightning-input>
                         <p class="slds-text-body_small slds-m-top_xx-small next-appt-text">
                             Next appointment: {nextScheduledTime}
                         </p>

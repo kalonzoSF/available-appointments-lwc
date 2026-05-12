@@ -172,10 +172,9 @@ public with sharing class AvailableAppointmentsController {
                 sa, saLat, saLng, durMin, schedule, buffer, travelFromUser, now
             )) continue;
 
-            if (backOnSiteDt != null && nextAppt != null
-                && nextAppt.lat != null && nextAppt.lng != null) {
+            if (backOnSiteDt != null && lat != null && lng != null) {
                 Integer travelBack = estimateTravelMinutes(saLat, saLng,
-                    nextAppt.lat.doubleValue(), nextAppt.lng.doubleValue());
+                    lat.doubleValue(), lng.doubleValue());
                 Double minutesNeeded = travelFromUser + durMin + travelBack;
                 Double minutesAvailable =
                     (backOnSiteDt.getTime() - now.getTime()) / 60000.0;
