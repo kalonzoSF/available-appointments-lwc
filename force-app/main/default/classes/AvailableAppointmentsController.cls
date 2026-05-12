@@ -141,12 +141,14 @@ public with sharing class AvailableAppointmentsController {
 
         Map<Id, Double> inventoryMap = new Map<Id, Double>();
         Map<Id, Map<Id, Double>> prodReqsByParent = new Map<Id, Map<Id, Double>>();
-        if (checkInventory == true && String.isNotBlank(locationId)) {
-            for (ProductItem pi : [
-                SELECT Product2Id, QuantityOnHand FROM ProductItem
-                WHERE LocationId = :locationId AND QuantityOnHand > 0
-            ]) {
-                inventoryMap.put(pi.Product2Id, pi.QuantityOnHand);
+        if (checkInventory == true) {
+            if (String.isNotBlank(locationId)) {
+                for (ProductItem pi : [
+                    SELECT Product2Id, QuantityOnHand FROM ProductItem
+                    WHERE LocationId = :locationId AND QuantityOnHand > 0
+                ]) {
+                    inventoryMap.put(pi.Product2Id, pi.QuantityOnHand);
+                }
             }
             Set<Id> allReqParents = new Set<Id>();
             allReqParents.addAll(parentIds);
@@ -183,7 +185,7 @@ public with sharing class AvailableAppointmentsController {
                 if (required != null && !resourceSkillSet.containsAll(required)) continue;
             }
 
-            if (checkInventory == true && String.isNotBlank(locationId)) {
+            if (checkInventory == true) {
                 Map<Id, Double> combined = new Map<Id, Double>();
                 Map<Id, Double> woReqs = prodReqsByParent.get(sa.ParentRecordId);
                 if (woReqs != null) {
