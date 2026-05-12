@@ -204,6 +204,24 @@ export default class AvailableAppointments extends LightningElement {
                 }
             });
         }
+        if (this.lastApptLocation) {
+            markers.push({
+                location: {
+                    Latitude: this.lastApptLocation.latitude,
+                    Longitude: this.lastApptLocation.longitude
+                },
+                title: 'Last Appointment',
+                description: 'Last scheduled appointment location',
+                mapIcon: {
+                    path: 'M 125,5 155,90 245,90 175,145 200,230 125,180 50,230 75,145 5,90 95,90 z',
+                    fillColor: '#2e844a',
+                    fillOpacity: 1,
+                    strokeColor: '#194e2b',
+                    strokeWeight: 1,
+                    scale: 0.12
+                }
+            });
+        }
         this.appointments
             .filter(a => a.lat && a.lng)
             .forEach(a => {
