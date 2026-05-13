@@ -277,17 +277,19 @@ public with sharing class AvailableAppointmentsController {
                     'This appointment is no longer available.');
             }
 
+            Double durMin = sa.Duration != null ? sa.Duration : 60;
+            if (sa.DurationType == 'Hours') durMin *= 60;
+
+            sa.SchedStartTime = Datetime.now();
+            sa.SchedEndTime = Datetime.now().addMinutes((Integer) durMin);
+            update sa;
+
             AssignedResource ar = new AssignedResource();
             ar.ServiceAppointmentId = saId;
             ar.ServiceResourceId = resourceId;
             insert ar;
 
-            Double durMin = sa.Duration != null ? sa.Duration : 60;
-            if (sa.DurationType == 'Hours') durMin *= 60;
-
             sa.Status = 'Scheduled';
-            sa.SchedStartTime = Datetime.now();
-            sa.SchedEndTime = Datetime.now().addMinutes((Integer) durMin);
             update sa;
 
             return 'SUCCESS';
