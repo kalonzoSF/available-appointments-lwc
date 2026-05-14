@@ -100,6 +100,28 @@
         <modifyAllRecords>false</modifyAllRecords>
     </objectPermissions>
 
+    <!-- Location: Read (required dependency for ProductItem) -->
+    <objectPermissions>
+        <object>Location</object>
+        <allowRead>true</allowRead>
+        <allowCreate>false</allowCreate>
+        <allowEdit>false</allowEdit>
+        <allowDelete>false</allowDelete>
+        <viewAllRecords>false</viewAllRecords>
+        <modifyAllRecords>false</modifyAllRecords>
+    </objectPermissions>
+
+    <!-- Product2: Read (required dependency for ProductItem) -->
+    <objectPermissions>
+        <object>Product2</object>
+        <allowRead>true</allowRead>
+        <allowCreate>false</allowCreate>
+        <allowEdit>false</allowEdit>
+        <allowDelete>false</allowDelete>
+        <viewAllRecords>false</viewAllRecords>
+        <modifyAllRecords>false</modifyAllRecords>
+    </objectPermissions>
+
     <!-- ProductItem: Read -->
     <objectPermissions>
         <object>ProductItem</object>
@@ -122,9 +144,9 @@
         <modifyAllRecords>false</modifyAllRecords>
     </objectPermissions>
 
-    <!-- ===== Field Permissions ===== -->
+    <!-- ===== Field Permissions (nillable fields only — required/compound fields excluded) ===== -->
 
-    <!-- ServiceResource Fields -->
+    <!-- ServiceResource -->
     <fieldPermissions>
         <field>ServiceResource.LocationId</field>
         <readable>true</readable>
@@ -135,47 +157,8 @@
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceResource.IsActive</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
 
-    <!-- ServiceTerritoryMember Fields -->
-    <fieldPermissions>
-        <field>ServiceTerritoryMember.ServiceTerritoryId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceTerritoryMember.ServiceResourceId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceTerritoryMember.EffectiveStartDate</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceTerritoryMember.EffectiveEndDate</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-
-    <!-- ServiceResourceSkill Fields -->
-    <fieldPermissions>
-        <field>ServiceResourceSkill.SkillId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-
-    <!-- ServiceAppointment Fields (Read) -->
-    <fieldPermissions>
-        <field>ServiceAppointment.AppointmentNumber</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
+    <!-- ServiceAppointment (Read) -->
     <fieldPermissions>
         <field>ServiceAppointment.Subject</field>
         <readable>true</readable>
@@ -188,46 +171,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <field>ServiceAppointment.DurationType</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.EarliestStartTime</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.DueDate</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.Street</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.City</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.State</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.PostalCode</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.Latitude</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ServiceAppointment.Longitude</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
@@ -246,7 +189,7 @@
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
-    <!-- ServiceAppointment Fields (Read + Edit for self-assign) -->
+    <!-- ServiceAppointment (Read + Edit for self-assign) -->
     <fieldPermissions>
         <field>ServiceAppointment.Status</field>
         <readable>true</readable>
@@ -263,67 +206,9 @@
         <editable>true</editable>
     </fieldPermissions>
 
-    <!-- AssignedResource Fields (Create) -->
-    <fieldPermissions>
-        <field>AssignedResource.ServiceAppointmentId</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>AssignedResource.ServiceResourceId</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-
-    <!-- WorkOrder Fields -->
+    <!-- WorkOrder -->
     <fieldPermissions>
         <field>WorkOrder.WorkTypeId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-
-    <!-- SkillRequirement Fields -->
-    <fieldPermissions>
-        <field>SkillRequirement.RelatedRecordId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>SkillRequirement.SkillId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-
-    <!-- ProductItem Fields -->
-    <fieldPermissions>
-        <field>ProductItem.Product2Id</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ProductItem.QuantityOnHand</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ProductItem.LocationId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-
-    <!-- ProductRequired Fields -->
-    <fieldPermissions>
-        <field>ProductRequired.ParentRecordId</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ProductRequired.Product2Id</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>ProductRequired.QuantityRequired</field>
         <readable>true</readable>
         <editable>false</editable>
     </fieldPermissions>
